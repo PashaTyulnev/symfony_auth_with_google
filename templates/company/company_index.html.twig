@@ -1,14 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}WachZeit - Mitarbeiterverwaltung{% endblock %}
+{% block title %}Auftraggeber - Firmen{% endblock %}
 
 {% block body %}
 
-    <div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden " data-controller="employee">
-        <div data-employee-target="employeeModalContainer">
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden" data-controller="company">
+
+        <div data-company-target="modalContainer">
 
         </div>
-{#        {% include 'employee/newEmployeeModal.html.twig' %}#}
+
         {# Hauptinhalt #}
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm">
             <div class="container mx-auto px-6 py-8">
@@ -16,19 +17,22 @@
                 {# Header mit Titel und Button #}
                 <div class="mb-8">
                     <div class="flex justify-between items-center">
-                        <h1 class="text-3xl font-light text-gray-900 dark:text-white tracking-tight">Mitarbeiterverwaltung</h1>
+                        <h1 class="text-3xl font-light text-gray-900 dark:text-white tracking-tight">Auftraggeber</h1>
                         <!-- Modal toggle -->
-                        <button data-action="click->employee#openEmployeeCreationModal"
+                        <button data-action="click->company#openCreationModal"
                                 class="app-button">
-                            {{ ux_icon('lucide:user-plus', { class: 'w-5 h-5' }) }}
-                            <span>Neuer Mitarbeiter</span>
+                            {{ ux_icon('lucide:building-2', { class: 'w-5 h-5' }) }}
+                            <span>Firma anlegen</span>
                         </button>
                     </div>
                 </div>
 
-                {# Mitarbeiterliste #}
-                <div data-employee-target="employeeListContainer">
-                    <twig:Loader/>
+                <div>
+                    <turbo-frame id="companies-table" src="{{ path('all_company_list_component') }}">
+                        <div class="loading">
+                            <twig:Loader/>
+                        </div>
+                    </turbo-frame>
                 </div>
             </div>
         </main>
@@ -72,7 +76,5 @@
             animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
     </style>
-
-    {# JavaScript für Modal-Funktionalität #}
 
 {% endblock %}
