@@ -1,17 +1,17 @@
 import BaseEntityController from "./base_entity_controller.js";
-import CompanyComponentApi from "../api/company/CompanyComponentApi.js";
+import ContactComponentApi from "../api/company/ContactComponentApi.js";
 
 export default class extends BaseEntityController {
 
     getEntityName() {
-        return 'companies';
+        return 'contacts';
     }
 
     getComponentApi() {
-        return CompanyComponentApi;
+        return ContactComponentApi;
     }
 
     getDeleteConfirmMessage() {
-        return 'Möchten Sie diese Firma wirklich löschen?';
+        return 'Möchten Sie diesen Kontakt wirklich löschen?';
     }
 }
