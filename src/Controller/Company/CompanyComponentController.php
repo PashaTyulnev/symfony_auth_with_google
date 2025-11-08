@@ -2,27 +2,30 @@
 
 namespace App\Controller\Company;
 
+use App\Entity\Address;
+use App\Entity\Company;
+use App\Form\CompanyType;
 use App\Repository\CompanyRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route(path: '/components/company')]
 class CompanyComponentController extends AbstractController
 {
-
-    public function __construct(readonly SerializerInterface $serializer,
-                                readonly CompanyRepository $companyRepository)
-    {
+    public function __construct(
+        readonly SerializerInterface $serializer,
+        readonly CompanyRepository $companyRepository,
+        readonly EntityManagerInterface $entityManager
+    ) {
     }
 
     #[Route(path: '/list', name: 'all_company_list_component', methods: ['GET'])]
     public function getCompanyListComponent(): Response
     {
-
         $companies = $this->companyRepository->findAll();
 
         $companies = $this->serializer->serialize(
@@ -38,28 +41,54 @@ class CompanyComponentController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'new_company_component', methods: ['GET'])]
-    public function getNewCompanyModalComponent(): Response
+    #[Route('/new', name: 'new_company_component', methods: ['GET', 'POST'])]
+    public function getNewCompanyModalComponent(Request $request): Response
     {
-        return $this->render('company/company_modal.html.twig', [
+        $company = new Company();
+        $company->setAddress(new Address());
+        $form = $this->createForm(CompanyType::class, $company);
 
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($company);
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('app_company');
+        }
+
+        return $this->render('company/company_modal.html.twig', [
+            'form' => $form->createView(),
+            'company' => null
         ]);
     }
 
-    #[Route(path: '/edit/{companyId}', name: 'edit_company_component', methods: ['GET'])]
-    public function getEditCompanyModalComponent(int $companyId): Response
+    #[Route(path: '/edit/{companyId}', name: 'edit_company_component', methods: ['GET', 'POST'])]
+    public function getEditCompanyModalComponent(int $companyId, Request $request): Response
     {
         $company = $this->companyRepository->find($companyId);
 
-        $company = $this->serializer->serialize(
-            $company,
-            'jsonld',
-            ['groups' => ['company:read']]
-        );
+        if (!$company) {
+            throw $this->createNotFoundException('Firma nicht gefunden');
+        }
 
-        $company = json_decode($company, true);
+        // Address initialisieren, falls nicht vorhanden
+        if (!$company->getAddress()) {
+            $company->setAddress(new Address());
+        }
+
+        $form = $this->createForm(CompanyType::class, $company);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            return $this->redirectToRoute('app_company');
+        }
 
         return $this->render('company/company_modal.html.twig', [
+            'form' => $form->createView(),
             'company' => $company
         ]);
     }

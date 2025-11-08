@@ -1,0 +1,118 @@
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    <div class="mb-6">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock form_row %}
+
+{% block form_label %}
+    {% if label is not same as(false) %}
+        {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 tracking-wide')|trim}) %}
+        <label{% if label_attr %}{% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>
+            {{ translation_domain is same as(false) ? label : label|trans(label_translation_parameters, translation_domain) }}
+            {% if required %}
+                <span class="text-red-400">*</span>
+            {% endif %}
+        </label>
+    {% endif %}
+{% endblock form_label %}
+
+{% block form_widget_simple %}
+    {% set type = type|default('text') %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full px-4 py-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200 shadow-sm')|trim}) %}
+    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+{% endblock form_widget_simple %}
+
+{% block form_widget_compound %}
+    <div {{ block('widget_container_attributes') }}>
+        {% if form.parent is empty %}
+            {{ form_errors(form) }}
+        {% endif %}
+        {{ block('form_rows') }}
+        {{ form_rest(form) }}
+    </div>
+{% endblock form_widget_compound %}
+
+{% block choice_widget_collapsed %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full px-4 py-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 appearance-none pr-12 transition-all duration-200 shadow-sm')|trim}) %}
+    <div class="relative">
+        <select {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
+            {% if placeholder is not none %}
+                <option value=""{% if required and value is empty %} selected="selected"{% endif %}>{{ placeholder != '' ? (translation_domain is same as(false) or translation_domain is null ? placeholder : placeholder|trans({}, translation_domain|default('messages'))) }}</option>
+            {% endif %}
+            {% if preferred_choices|length > 0 %}
+                {% set options = preferred_choices %}
+                {{- block('choice_widget_options') -}}
+                {% if choices|length > 0 and separator is not none %}
+                    <option disabled="disabled">{{ separator }}</option>
+                {% endif %}
+            {% endif %}
+            {% set options = choices %}
+            {{- block('choice_widget_options') -}}
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+            {{ ux_icon('lucide:chevron-down', { class: 'h-4 w-4 text-gray-500 dark:text-gray-400' }) }}
+        </div>
+    </div>
+{% endblock choice_widget_collapsed %}
+
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <ul class="mt-2 text-sm text-red-500 dark:text-red-400 font-medium">
+            {% for error in errors %}
+                <li class="flex items-center">
+                    <span class="mr-1">{{ ux_icon('lucide:alert-circle', { class: 'h-4 w-4' }) }}</span>
+                    {{ error.message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock form_errors %}
+
+{% block date_widget_single_text %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full px-4 py-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200 shadow-sm')|trim}) %}
+    <input type="date" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+{% endblock date_widget_single_text %}
+
+{% block email_widget %}
+    {% set type = type|default('email') %}
+    {{ block('form_widget_simple') }}
+{% endblock email_widget %}
+
+{% block checkbox_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' h-5 w-5 rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200')|trim}) %}
+    <div class="flex items-center">
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        {% if label is not same as(false) %}
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain|default('messages')) }}</span>
+        {% endif %}
+    </div>
+{% endblock checkbox_widget %}
+
+{% block radio_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' h-5 w-5 border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200')|trim}) %}
+    <div class="flex items-center">
+        <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        {% if label is not same as(false) %}
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain|default('messages')) }}</span>
+        {% endif %}
+    </div>
+{% endblock radio_widget %}
+
+{% block textarea_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full px-4 py-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200 shadow-sm')|trim}) %}
+    <textarea {{ block('widget_attributes') }}>{{ value }}</textarea>
+{% endblock textarea_widget %}
+
+{% block button_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200')|trim}) %}
+    <button {{ block('button_attributes') }}>{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain|default('messages')) }}</button>
+{% endblock button_widget %}
+
+{% block submit_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200')|trim}) %}
+    {{ block('button_widget') }}
+{% endblock submit_widget %}
