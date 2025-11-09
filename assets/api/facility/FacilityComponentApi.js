@@ -1,8 +1,8 @@
-export default class ContactComponentApi {
+export default class FacilityComponentApi {
 
     static getCreationModal() {
 
-        return fetch(`/components/contact/new`, {
+        return fetch(`/components/facility/new`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json'
@@ -11,7 +11,7 @@ export default class ContactComponentApi {
     }
 
     static getEditModal(entityId) {
-        return fetch(`/components/contact/edit/${entityId}`, {
+        return fetch(`/components/facility/edit/${entityId}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json'

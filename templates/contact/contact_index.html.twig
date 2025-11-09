@@ -1,14 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Objektverwaltung{% endblock %}
+{% block title %}Auftraggeber - Firmen{% endblock %}
 
 {% block body %}
-{#    {{ component('Alert', {#}
-{#        type: 'danger',#}
-{#        message: 'Danger Will Robinson!'#}
-{#    }) }}#}
-    <div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden" data-controller="facility">
-        <div data-facility-target="modalContainer">
+
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden" data-controller="contact">
+
+        <div data-contact-target="modalContainer">
 
         </div>
 
@@ -19,18 +17,18 @@
                 {# Header mit Titel und Button #}
                 <div class="mb-8">
                     <div class="flex justify-between items-center">
-                        <h1 class="text-3xl font-light text-gray-900 dark:text-white tracking-tight">Objektverwaltung</h1>
+                        <h1 class="text-3xl font-light text-gray-900 dark:text-white tracking-tight">Kontakte</h1>
                         <!-- Modal toggle -->
-                        <button data-action="click->facility#openCreationModal"
+                        <button data-action="click->contact#openCreationModal"
                                 class="app-button">
-                            {{ ux_icon('lucide:building-2', { class: 'w-5 h-5' }) }}
-                            <span>Neues Objekt</span>
+                            {{ ux_icon('lucide:contact', { class: 'w-5 h-5' }) }}
+                            <span>Kontakt anlegen</span>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <turbo-frame id="facilities-table" src="{{ path('all_facility_list_component') }}">
+                    <turbo-frame id="contacts-table" src="{{ path('all_contact_list_component') }}">
                         <div class="loading">
                             <twig:Loader/>
                         </div>
