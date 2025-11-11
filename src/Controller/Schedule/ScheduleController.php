@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Controller\Contact;
+namespace App\Controller\Schedule;
 
-use App\Repository\DepartmentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class ContactController extends AbstractController
+class ScheduleController extends AbstractController
 {
-
-    #[Route(path: '/contacts', name: 'app_contacts')]
+    #[Route(path: '/schedule', name: 'app_schedule')]
     public function loadIndexPage(Security $security): Response
     {
 
-        return $this->render('pages/contact/contact_index.html.twig', [
+        return $this->render('pages/schedule/schedule_week/schedule_week_index.html.twig', [
 
         ]);
     }
-
 }
