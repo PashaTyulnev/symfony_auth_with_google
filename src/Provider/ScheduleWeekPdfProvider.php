@@ -14,9 +14,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-class ScheduleMonthPdfProvider implements ProviderInterface
+class ScheduleWeekPdfProvider implements ProviderInterface
 {
-    public function __construct(private RequestStack $requestStack, readonly Environment $twig,
+    public function __construct(private RequestStack $requestStack,
+                                readonly Environment $twig,
                                 readonly EmployeeService $employeeService,
                                 readonly FacilityService $facilityService,
                                 readonly ScheduleService $scheduleService) {}
@@ -24,21 +25,22 @@ class ScheduleMonthPdfProvider implements ProviderInterface
     {
 
         $request = $this->requestStack->getCurrentRequest();
-        $month = (int) $request->query->get('month');
+
+        $week = (int) $request->query->get('week');
         $year = (int) $request->query->get('year');
+        $weekSpan = (int) $request->query->get('weekSpan',1);
         $facilityId = $request->query->get('facilityId', null);
 
         if($facilityId === 'null'){
             $facilityId = null;
         }
 
-        if (!$month || !$year) {
-            return new Response('Month and Year are required', 400);
+        if (!$week || !$year) {
+            return new Response('Week and Year are required', 400);
         }
 
 
-        $pdfContent = $this->generatePdf($month, $year,$facilityId);
-
+        $pdfContent = $this->generatePdf($week, $year,$weekSpan, $facilityId);
 
         return new Response(
             $pdfContent,
@@ -46,19 +48,19 @@ class ScheduleMonthPdfProvider implements ProviderInterface
             [
                 'Content-Type' => 'application/pdf',
                 // 'attachment' sorgt für direkten Download, optional 'inline' für im Browser öffnen
-                'Content-Disposition' => 'attachment; filename="schedule_' . $month . '_' . $year . '.pdf"',
+                'Content-Disposition' => 'attachment; filename="schedule_' . $week . '_' . $year . '.pdf"',
                 'Content-Length' => strlen($pdfContent),
             ]
         );
     }
 
-    private function generatePdf(int $month, int $year, $facilityId = null): string
+    private function generatePdf(int $week, int $year, $weekSpan, $facilityId = null): string
     {
         $dompdf = new Dompdf();
 
         $employees = $this->employeeService->getAllEmployees();
         $facilities = $this->facilityService->getAllFacilities();
-        $datesRange = $this->scheduleService->buildMonthDaysRange((int)$year, (int)$month);
+        $datesRange = $this->scheduleService->buildWeekDaysRange((int)$year, (int)$week, (int)$weekSpan);
 
         $shifts = $this->scheduleService->getShiftsForEmployeesInDateRange($datesRange,$facilityId);
 
@@ -68,8 +70,7 @@ class ScheduleMonthPdfProvider implements ProviderInterface
             $selectedFacility = $this->facilityService->getFacilityById($facilityId);
         }
 
-
-        $html = $this->twig->render('pdf/month_schedule.html.twig', [
+        $html = $this->twig->render('pdf/week_schedule.html.twig', [
             'employees' => $employees,
             'facilities' => $facilities,
             'datesRange' => $datesRange,
